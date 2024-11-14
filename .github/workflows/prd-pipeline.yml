@@ -13,47 +13,13 @@ on: # on [required] - name of GitHub event that triggers the workflow
 jobs: # jobs [required] - one or more jobs, sequence of tasks (steps)
   # steps can run commands, setup tasks OR run an action
   build:
-    ### 5. RUNNERS ###
-    runs-on: ubuntu-latest
-    ### 6. ACTIONS ###
-    steps:
-      # uses - select an action, under path action/ the reusable code is hosted
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: "17"
-          distribution: "temurin"
-          cache: maven
-      - name: Build with Maven
-        # run - runs a command-line command
-        run: mvn -B package --file pom.xml
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: target-files
-          path: target
+    uses: ./.github/workflows/build.yml
   test:
     needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: "17"
-          distribution: "temurin"
-          cache: maven
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: target-files
-      - name: Display structure of downloaded files
-        run: ls -R
-      - name: Test with Maven
-        run: mvn test
+    uses: ./.github/workflows/test.yml
   deploy:
     needs: test
+    environment: main
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
